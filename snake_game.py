@@ -10,12 +10,6 @@ font = pygame.font.Font('arial.ttf', 25)
 
 # font = pygame.font.SysFont('arial', 25)
 
-#reset
-# reward
-# play(action) -> direction
-# game_iteration
-# is_collision
-
 class Direction(Enum):
     RIGHT = 1
     LEFT = 2
@@ -33,7 +27,7 @@ BLUE2 = (0, 100, 255)
 BLACK = (0, 0, 0)
 
 BLOCK_SIZE = 20
-SPEED = 20
+SPEED = 15
 
 
 class SnakeGameAI:
@@ -46,7 +40,6 @@ class SnakeGameAI:
         pygame.display.set_caption('Snake')
         self.clock = pygame.time.Clock()
         self.reset()
-
 
     def reset(self):
         # init game state
@@ -62,7 +55,6 @@ class SnakeGameAI:
         self._place_food()
         self.frame_iteration = 0
 
-
     def _place_food(self):
         x = random.randint(0, (self.w - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
         y = random.randint(0, (self.h - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
@@ -70,8 +62,8 @@ class SnakeGameAI:
         if self.food in self.snake:
             self._place_food()
 
-    def play_step(self,action):
-        self.frame_iteration+=1
+    def play_step(self, action):
+        self.frame_iteration += 1
         # 1. collect user input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -85,7 +77,7 @@ class SnakeGameAI:
         # 3. check if game over
         reward = 0
         game_over = False
-        if self.is_collision() or self.frame_iteration > 100*len(self.snake): #To exit if snake is not improving
+        if self.is_collision() or self.frame_iteration > 100 * len(self.snake):
             game_over = True
             reward = -10
             return reward, game_over, self.score
@@ -102,9 +94,9 @@ class SnakeGameAI:
         self._update_ui()
         self.clock.tick(SPEED)
         # 6. return game over and score
-        return reward,game_over, self.score
+        return reward, game_over, self.score
 
-    def is_collision(self,pt=None):
+    def is_collision(self, pt=None):
         if pt is None:
             pt = self.head
         # hits boundary
@@ -130,22 +122,21 @@ class SnakeGameAI:
         pygame.display.flip()
 
     def _move(self, action):
-        #[straight,right,left]
-        clockwise = [Direction.RIGHT, Direction.DOWN,Direction.LEFT,Direction.UP]
-        idx = clockwise.index(self.direction)
+        # [straight, right, left]
 
-        if np.array_equal(action,[1,0,0]):
-            new_dir = clockwise[idx] #No change
+        clock_wise = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
+        idx = clock_wise.index(self.direction)
 
-        elif np.array_equal(action,[0,1,0]):
-            next_idx = (idx+1)%4
-            new_dir = clockwise[next_idx] #Right turn r -> d -> l -> u
-        else: #[0,0,1]
+        if np.array_equal(action, [1, 0, 0]):
+            new_dir = clock_wise[idx]  # no change
+        elif np.array_equal(action, [0, 1, 0]):
+            next_idx = (idx + 1) % 4
+            new_dir = clock_wise[next_idx]  # right turn r -> d -> l -> u
+        else:  # [0, 0, 1]
             next_idx = (idx - 1) % 4
-            new_dir = clockwise[next_idx]  # Left turn r->u->l->d
+            new_dir = clock_wise[next_idx]  # left turn r -> u -> l -> d
 
         self.direction = new_dir
-
 
         x = self.head.x
         y = self.head.y
